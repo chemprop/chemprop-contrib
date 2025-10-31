@@ -77,7 +77,7 @@ jobs:
       - name: Install packages
         shell: bash -l {0}
         run: |
-          python -m pip install chemprop[dev,docs,test,hpopt]
+          python -m pip install chemprop[dev,docs,test]
           python -m pip install nbmake
           python -m pip install .
       - name: Install additional dependencies if needed
