@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chemprop-contrib"
+description = "Community contributions to chemprop"
+version = "0.0.0"
+authors = [
+    {name = "The Chemprop Development Team and Community", email="chemprop@mit.edu"}
+]
+readme = "README.md"
+license = {text = "MIT unless otherwise noted in individual contribution files"}
+classifiers = [
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent"
+]
+keywords = [
+    "chemistry",
+    "machine learning",
+    "property prediction",
+    "message passing neural network",
+    "graph neural network",
+    "drug discovery"
+]
+requires-python = ">=3.11"
+dependencies = [
+    "chemprop",
+]
+
+[project.urls]
+source = "https://github.com/chemprop/chemprop-contrib"
+PyPi = "https://pypi.org/project/chemprop/"
+
+[tool.setuptools.packages.find]
+include = ["chemprop_contrib"]
+exclude = [".github"]
