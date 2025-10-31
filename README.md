@@ -10,7 +10,8 @@ All community-contributed packages should fork the repository and in a branch on
  - Data files, if needed, and their provenance
  - Documentation (perhaps a Notebook (*.ipynb) or README.md) with instructions on how to use code contributed
  - Tests demonstrating that the code works as intended
- - A requirements.txt file listing any additional dependencies needed for the package
+
+ If your package has additional dependencies, add them to the list of optional dependencies in the pyproject.toml with the same name as your directory.
 
 Once the package is ready, make a pull request to the main chemprop-contrib repository for a brief review. We provide a template for these pull requests.
 
