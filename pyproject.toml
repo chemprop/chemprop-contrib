@@ -29,6 +29,8 @@ dependencies = [
     "chemprop",
 ]
 
+[project.optional-dependencies]
+
 [project.urls]
 source = "https://github.com/chemprop/chemprop-contrib"
 PyPi = "https://pypi.org/project/chemprop/"

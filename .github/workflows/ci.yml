@@ -62,15 +62,15 @@ jobs:
 
           CHANGED_TESTS=$(echo "$CHANGED_FILES" | grep -E 'test_.*\.py$' || true)
           NOTEBOOKS=$(echo "$CHANGED_FILES" | grep -E '\.ipynb$' || true)
-          REQUIREMENTS=$(echo "$CHANGED_FILES" | grep -E 'requirements\.txt$' || true)
+          FEATURE_NAMES=$(echo "$CHANGED_FILES" | grep -E '^chemprop_contrib/[^/]+/' | cut -d/ -f2 | sort -u || true)
 
           echo "test_files=$CHANGED_TESTS" >> $GITHUB_OUTPUT
           echo "notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
-          echo "requirements=$REQUIREMENTS" >> $GITHUB_OUTPUT
+          echo "feature_names=$FEATURE_NAMES" >> $GITHUB_OUTPUT
 
           echo "Detected test files: $CHANGED_TESTS"
           echo "Detected notebooks: $NOTEBOOKS"
-          echo "Detected requirements: $REQUIREMENTS"
+          echo "Detected feature names: $FEATURE_NAMES"
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
@@ -80,13 +80,13 @@ jobs:
           python -m pip install chemprop[dev,docs,test,hpopt]
           python -m pip install nbmake
           python -m pip install .
-      - name: Install additional requirements if present
-        if: steps.find-tests.outputs.requirements != ''
+      - name: Install additional dependencies if needed
+        if: steps.find-changes.outputs.feature_names != ''
         shell: bash -l {0}
         run: |
-          for req in ${{ steps.find-tests.outputs.requirements }}; do
-            if [ -f "$req" ]; then
-              python -m pip install -r "$req"
+          for feature in ${{ steps.find-changes.outputs.feature_names }}; do
+            if grep -q "^\s*${feature}\s*=" pyproject.toml; then
+              python -m pip install ".[${feature}]"
             fi
           done
       - name: Test with pytest
