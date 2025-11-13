@@ -20,7 +20,7 @@ We provide a template for these pull requests.
 
 For packages which _do not_ require any new dependencies, see `moe_regressor` as an example.
 
-For packages whi _do_ require additional dependencies, see `mcp` as an example.
+For packages which _do_ require additional dependencies, see `mcp` as an example.
 Note that one must edit the `pyproject.toml` and _add_ these dependencies, as mentioned in [Contributing](#contributing).
 
 # Using
