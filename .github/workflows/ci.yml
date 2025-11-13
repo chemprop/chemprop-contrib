@@ -7,7 +7,9 @@
 name: Continuous Integration
 
 on:
-  # run on pull requests against main
+  # run on push and pull requests against main
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   # allow manual runs
