@@ -29,7 +29,7 @@ chemprop-contrib can either be pip installed directly
 ```
 pip install chemprop-contrib
 ```
-or installed as an optional dependency when installing chemprop
+or installed as an optional dependency when installing Chemprop
 ```
 pip install chemprop[contrib]
 ```
@@ -43,4 +43,4 @@ Each package includes tests, which can be used to demonstrate the use of the pac
 
 # Available Packages
 
- - `moe_regressor`: Implements the ["Adaptive Mixture of Local Experts"](doir.org/10.1162/neco.1991.3.1.79) model for regression.
+ - `moe_regressor`: Implements the ["Adaptive Mixture of Local Experts"](https://doi.org/10.1162/neco.1991.3.1.79) model for regression.
