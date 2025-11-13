@@ -57,7 +57,7 @@ jobs:
       fail-fast: false
       matrix:
         # test on all platforms with both supported versions of Python
-        os: [ubuntu-latest, macos-13, windows-2022]
+        os: [ubuntu-latest, macos-15-intel, windows-2022]
         python-version: [3.11, 3.12]
     steps:
       - uses: actions/checkout@v4
@@ -91,7 +91,7 @@ jobs:
       - name: Install packages
         shell: bash -l {0}
         run: |
-          python -m pip install chemprop[dev,docs,test, hpopt]
+          python -m pip install chemprop[dev,docs,test,hpopt]
           python -m pip install nbmake
           python -m pip install .
       - name: Install additional dependencies if needed
