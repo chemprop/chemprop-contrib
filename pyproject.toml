@@ -7,7 +7,7 @@ name = "chemprop-contrib"
 description = "Community contributions to chemprop"
 version = "2025.11.01"
 authors = [
-    {name = "The Chemprop Development Team and Community", email="chemprop@mit.edu"}
+    {name = "The Chemprop Development Team", email="chemprop@mit.edu"}
 ]
 readme = "README.md"
 license = {text = "MIT unless otherwise noted in individual contribution files"}
