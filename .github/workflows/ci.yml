@@ -103,16 +103,7 @@ jobs:
             echo "Running nbmake on $nb"
             pytest --no-cov -v --nbmake "$nb"
           done
-  pypidebug:
-    name: Debug context
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - name: echo some stuff  
-        run: |
-          echo "Event name: ${{ github.event_name }}"
-          echo "Ref: ${{ github.ref }}"
-          echo "Repository: ${{ github.repository }}"
+
   pypi:
     name: Build and publish Python 🐍 distributions 📦 to PyPI
     runs-on: ubuntu-latest
