@@ -1,0 +1,126 @@
+# ci.yml
+#
+# Continuous Integration for additions to chemprop-contrib. Mostly copied from the main chemprop repo.
+#
+# Note: this file contains extensive inline documentation to aid with knowledge transfer.
+
+name: Continuous Integration
+
+on:
+  # run on pull requests against main
+  pull_request:
+    branches: [main]
+  # allow manual runs
+  workflow_dispatch:
+
+# cancel previously running tests if new commits are made
+# https://docs.github.com/en/actions/examples/using-concurrency-expressions-and-a-test-matrix
+concurrency:
+  group: actions-id-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Check Build
+    runs-on: ubuntu-latest
+    steps:
+      # clone the repo, attempt to build
+      - uses: actions/checkout@v4
+      - run: python -m pip install build
+      - run: python -m build .
+
+  test:
+    name: Execute Tests
+    needs: build
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        # run with a login shell (so that the conda environment is activated)
+        # and echo the commands we run as we do them (for debugging purposes)
+        shell: bash -el {0}
+    strategy:
+      # if one platform/python version fails, continue testing the others
+      fail-fast: false
+      matrix:
+        # test on all platforms with both supported versions of Python
+        os: [ubuntu-latest, macos-latest, windows-2022]
+        python-version: [3.11, 3.12]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # fetch origin/main in addition to HEAD
+          fetch-depth: 0
+      - name: Find files to test in PR
+        shell: bash -l {0}
+        id: find-changes
+        # determine which test files and notebooks this PR changed, usually the ones it adds
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          CHANGED_TESTS=$(echo "$CHANGED_FILES" | grep -E 'test_.*\.py$' || true)
+          NOTEBOOKS=$(echo "$CHANGED_FILES" | grep -E '\.ipynb$' || true)
+          FEATURE_NAMES=$(echo "$CHANGED_FILES" | grep -E '^chemprop_contrib/[^/]+/' | cut -d/ -f2 | sort -u || true)
+
+          echo "test_files=$CHANGED_TESTS" >> $GITHUB_OUTPUT
+          echo "notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
+          echo "feature_names=$FEATURE_NAMES" >> $GITHUB_OUTPUT
+
+          echo "Detected test files: $CHANGED_TESTS"
+          echo "Detected notebooks: $NOTEBOOKS"
+          echo "Detected feature names: $FEATURE_NAMES"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install packages
+        shell: bash -l {0}
+        run: |
+          python -m pip install nbmake
+          python -m pip install .
+      - name: Install additional dependencies if needed
+        if: steps.find-changes.outputs.feature_names != ''
+        shell: bash -l {0}
+        run: |
+          for feature in ${{ steps.find-changes.outputs.feature_names }}; do
+            if grep -q "^\s*${feature}\s*=" pyproject.toml; then
+              python -m pip install ".[${feature}]"
+            fi
+          done
+      - name: Test with pytest
+        shell: bash -l {0}
+        if: steps.find-changes.outputs.test_files != ''
+        run: |
+          for file in ${{ steps.find-changes.outputs.test_files }}; do
+            echo "Running tests in $file"
+            pytest -v -ra --color=yes "$file"
+          done
+      - name: Run pytest on changed notebooks with nbmake
+        if: steps.find-changes.outputs.notebooks != ''
+        run: |
+          for nb in ${{ steps.find-changes.outputs.notebooks }}; do
+            echo "Running nbmake on $nb"
+            pytest --no-cov -v --nbmake "$nb"
+          done
+  pypi:
+    name: Build and publish Python 🐍 distributions 📦 to PyPI
+    runs-on: ubuntu-latest
+    needs: [test]
+    if:  ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'chemprop/chemprop-contrib' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+      - name: Install pypa/build
+        run: python -m pip install build --user
+      - name: Build a binary wheel and a source tarball
+        run: python -m build --sdist --wheel --outdir dist/ .
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
+          verbose: true
