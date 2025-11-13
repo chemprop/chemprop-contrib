@@ -13,7 +13,15 @@ All community-contributed packages should fork the repository and in a branch on
 
  If your package has additional dependencies, add them to the list of optional dependencies in the pyproject.toml with the same name as your directory.
 
-Once the package is ready, make a pull request to the main chemprop-contrib repository for a brief review. We provide a template for these pull requests.
+Once the package is ready, make a pull request to the main chemprop-contrib repository for a brief review.
+We provide a template for these pull requests.
+
+## Examples
+
+For packages which _do not_ require any new dependencies, see `moe_regressor` as an example.
+
+For packages whi _do_ require additional dependencies, see `mcp` as an example.
+Note that one must edit the `pyproject.toml` and _add_ these dependencies, as mentioned in [Contributing](#contributing).
 
 # Using
 
@@ -30,3 +38,9 @@ Then, the contributed packages can be imported in Python as
 ```python
 from chemprop_contrib import <package_name>
 ```
+
+Each package includes tests, which can be used to demonstrate the use of the package.
+
+# Available Packages
+
+ - `moe_regressor`: Implements the ["Adaptive Mixture of Local Experts"](doir.org/10.1162/neco.1991.3.1.79) model for regression.
