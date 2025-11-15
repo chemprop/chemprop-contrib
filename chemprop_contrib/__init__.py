@@ -7,3 +7,10 @@ __all__ = [
 
 # possibly not working imports, because they have external deps that must be installed
 # with their optional package
+
+try:
+    from chemprop_contrib import mcp
+
+    __all__ += ["mcp"]
+except ImportError:
+    pass
