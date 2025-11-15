@@ -1,15 +1,13 @@
-from chemprop.nn import Predictor, PredictorRegistry
-from chemprop.utils import Factory
-from chemprop.nn.predictors import MLP
-from chemprop.nn.metrics import MSE, ChempropMetric
-from chemprop.conf import DEFAULT_HIDDEN_DIM
-from chemprop.nn.transforms import UnscaleTransform
-
-from lightning.pytorch.core.mixins import HyperparametersMixin
-
-from torch import nn, Tensor
-import torch.nn.functional as F
 import torch
+import torch.nn.functional as F
+from chemprop.conf import DEFAULT_HIDDEN_DIM
+from chemprop.nn import Predictor, PredictorRegistry
+from chemprop.nn.metrics import MSE, ChempropMetric
+from chemprop.nn.predictors import MLP
+from chemprop.nn.transforms import UnscaleTransform
+from chemprop.utils import Factory
+from lightning.pytorch.core.mixins import HyperparametersMixin
+from torch import Tensor, nn
 
 
 @PredictorRegistry.register("regression-moe")
