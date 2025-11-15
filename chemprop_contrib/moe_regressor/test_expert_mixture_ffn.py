@@ -1,11 +1,12 @@
+from lightning import Trainer
 import pandas as pd
+
 from chemprop.data import MoleculeDatapoint, MoleculeDataset, build_dataloader
 from chemprop.featurizers import SimpleMoleculeMolGraphFeaturizer
-from chemprop.models import MPNN
 from chemprop.nn import BondMessagePassing
+from chemprop.models import MPNN
 from chemprop.nn.agg import MeanAggregation
 from chemprop.nn.transforms import UnscaleTransform
-from lightning import Trainer
 
 from chemprop_contrib import moe_regressor
 

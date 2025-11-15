@@ -7,9 +7,7 @@ name = "chemprop-contrib"
 description = "Community contributions to chemprop"
 version = "2025.11.01"
 authors = [
-    {name = "The Chemprop Development Team", email="chemprop@mit.edu"},
-    {name = "Jackson Burns"},
-    {name = "Shih-Cheng Li"},
+    {name = "The Chemprop Development Team", email="chemprop@mit.edu"}
 ]
 readme = "README.md"
 license = {text = "MIT unless otherwise noted in individual contribution files"}
@@ -32,15 +30,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-mcp =[
-    "chemprop>=2.2.0",
-    "fastapi>=0.116.1",
-    "fastmcp>=2.10.6",
-    "httpx>=0.28.1",
-    "mcp[cli]>=1.12.2",
-    "pandas>=2.3.1",
-    "requests>=2.32.4",
-]
 
 [project.urls]
 source = "https://github.com/chemprop/chemprop-contrib"
@@ -49,6 +38,3 @@ PyPi = "https://pypi.org/project/chemprop/"
 [tool.setuptools.packages.find]
 include = ["chemprop_contrib"]
 exclude = [".github"]
-
-[project.scripts]
-chemprop-mcp = "chemprop_contrib.mcp.server:main"

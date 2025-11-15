@@ -1,9 +1,0 @@
-baseline/*
-!baseline/parity.png
-!baseline/config.toml
-optuna/*
-!optuna/parity.png
-!optuna/run.sh
-llm_opt/*
-!llm_opt/parity.png
-*.csv
