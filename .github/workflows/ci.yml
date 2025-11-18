@@ -68,19 +68,19 @@ jobs:
 
           {
             echo "test_files<<EOF"
-            echo "$CHANGED_TESTS"
+            echo "$CHANGED_TESTS" | tr '\n' ' '
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
           {
             echo "notebooks<<EOF"
-            echo "$NOTEBOOKS"
+            echo "$NOTEBOOKS" | tr '\n' ' '
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
           {
             echo "feature_names<<EOF"
-            echo "$FEATURE_NAMES"
+            echo "$FEATURE_NAMES" | tr '\n' ' '
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -99,8 +99,7 @@ jobs:
         if: steps.find-changes.outputs.feature_names != ''
         shell: bash -l {0}
         run: |
-          IFS=$'\n'
-          for feature in "${{ steps.find-changes.outputs.feature_names }}"; do
+          for feature in ${{ steps.find-changes.outputs.feature_names }}; do
             if grep -q "^\s*${feature}\s*=" pyproject.toml; then
               python -m pip install ".[${feature}]"
             fi
@@ -109,16 +108,14 @@ jobs:
         shell: bash -l {0}
         if: steps.find-changes.outputs.test_files != ''
         run: |
-          IFS=$'\n'
-          for file in "${{ steps.find-changes.outputs.test_files }}"; do
+          for file in ${{ steps.find-changes.outputs.test_files }}; do
             echo "Running tests in $file"
             pytest -v -ra --color=yes "$file"
           done
       - name: Run pytest on changed notebooks with nbmake
         if: steps.find-changes.outputs.notebooks != ''
         run: |
-          IFS=$'\n'
-          for nb in "${{ steps.find-changes.outputs.notebooks }}"; do
+          for nb in ${{ steps.find-changes.outputs.notebooks }}; do
             echo "Running nbmake on $nb"
             pytest --no-cov -v --nbmake "$nb"
           done
