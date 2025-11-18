@@ -69,18 +69,21 @@ jobs:
           {
             echo "test_files<<EOF"
             echo "$CHANGED_TESTS" | tr '\n' ' '
+            echo ""
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
           {
             echo "notebooks<<EOF"
             echo "$NOTEBOOKS" | tr '\n' ' '
+            echo ""
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
           {
             echo "feature_names<<EOF"
             echo "$FEATURE_NAMES" | tr '\n' ' '
+            echo ""
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
