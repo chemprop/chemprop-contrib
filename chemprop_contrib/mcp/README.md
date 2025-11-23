@@ -5,6 +5,9 @@ This server provides a comprehensive interface to Chemprop's CLI commands throug
 
 https://github.com/user-attachments/assets/cbc1328e-cec1-4c38-89ef-d02831adba62
 
+Please cite [10.26434/chemrxiv-2025-tsx5s](https://doi.org/10.26434/chemrxiv-2025-tsx5s) if you use the Chemprop MCP Server in your published work.
+More information about the tool, as well as a case study, are also included in the paper.
+
 ## Installation
 
 ### `pip`
