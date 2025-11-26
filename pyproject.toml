@@ -51,4 +51,4 @@ include = ["chemprop_contrib"]
 exclude = [".github"]
 
 [project.scripts]
-chemprop-mcp = "chemprop_contrib.mcp.server:main"
+chemprop-mcp = "chemprop_contrib.mcp._cli:main"
