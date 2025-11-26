@@ -113,14 +113,14 @@ jobs:
         run: |
           for file in ${{ steps.find-changes.outputs.test_files }}; do
             echo "Running tests in $file"
-            pytest -v -ra --color=yes "$file"
+            pytest -v -ra --color=yes "$file" || exit 1
           done
       - name: Run pytest on changed notebooks with nbmake
         if: steps.find-changes.outputs.notebooks != ''
         run: |
           for nb in ${{ steps.find-changes.outputs.notebooks }}; do
             echo "Running nbmake on $nb"
-            pytest --no-cov -v --nbmake "$nb"
+            pytest --no-cov -v --nbmake "$nb" || exit 1
           done
 
   pypi:
