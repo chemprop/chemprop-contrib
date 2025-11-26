@@ -4,7 +4,7 @@ This brief demo code is provided to accompany the short manuscript describing `c
 
 The `baseline` run was done using the LLM interface, as shown in the accompanying [video](./chemprop_mcp_demo.mp4).
 
-The `llm_opt` was also done using the LLM interface, as described in the paper.
+The `llm_opt` was also done using the LLM interface, as described in the [paper](https://doi.org/10.26434/chemrxiv-2025-tsx5s).
 The model is prompted with the below input until the shown table is completely filled out:
 
 ```
