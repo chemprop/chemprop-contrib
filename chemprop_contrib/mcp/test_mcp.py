@@ -27,6 +27,9 @@ async def test_chemprop_train_basic_call(tmp_path):
             epochs=3,
             split="RANDOM",
             split_sizes=[0.8, 0.1, 0.1],
+            # required for GHA - mac runner has an MPS bug
+            accelerator="cpu",
+            devices=1,
         )
     )
 
