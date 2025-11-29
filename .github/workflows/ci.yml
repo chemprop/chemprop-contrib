@@ -66,9 +66,26 @@ jobs:
           NOTEBOOKS=$(echo "$CHANGED_FILES" | grep -E '\.ipynb$' || true)
           FEATURE_NAMES=$(echo "$CHANGED_FILES" | grep -E '^chemprop_contrib/[^/]+/' | cut -d/ -f2 | sort -u || true)
 
-          echo "test_files=$CHANGED_TESTS" >> $GITHUB_OUTPUT
-          echo "notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
-          echo "feature_names=$FEATURE_NAMES" >> $GITHUB_OUTPUT
+          {
+            echo "test_files<<EOF"
+            echo "$CHANGED_TESTS" | tr '\n' ' '
+            echo ""
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "notebooks<<EOF"
+            echo "$NOTEBOOKS" | tr '\n' ' '
+            echo ""
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "feature_names<<EOF"
+            echo "$FEATURE_NAMES" | tr '\n' ' '
+            echo ""
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           echo "Detected test files: $CHANGED_TESTS"
           echo "Detected notebooks: $NOTEBOOKS"
@@ -79,7 +96,7 @@ jobs:
       - name: Install packages
         shell: bash -l {0}
         run: |
-          python -m pip install nbmake
+          python -m pip install nbmake pytest-asyncio
           python -m pip install .
       - name: Install additional dependencies if needed
         if: steps.find-changes.outputs.feature_names != ''
@@ -96,14 +113,14 @@ jobs:
         run: |
           for file in ${{ steps.find-changes.outputs.test_files }}; do
             echo "Running tests in $file"
-            pytest -v -ra --color=yes "$file"
+            pytest -v -ra --color=yes "$file" || exit 1
           done
       - name: Run pytest on changed notebooks with nbmake
         if: steps.find-changes.outputs.notebooks != ''
         run: |
           for nb in ${{ steps.find-changes.outputs.notebooks }}; do
             echo "Running nbmake on $nb"
-            pytest --no-cov -v --nbmake "$nb"
+            pytest --no-cov -v --nbmake "$nb" || exit 1
           done
 
   pypi:
