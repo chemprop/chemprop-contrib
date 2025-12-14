@@ -499,7 +499,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
 
         if self.model is None:
             input_transforms = normalize_inputs(
-                train_set, val_set if val_set is not None else train_set, self.args
+                train_set, val_set, self.args
             )
             output_transform = None
             if "regression" in self.task_type:
