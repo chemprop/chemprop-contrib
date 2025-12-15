@@ -11,11 +11,7 @@ import torch
 from chemprop.cli.common import add_common_args, find_models
 from chemprop.cli.train import add_train_args, build_model, normalize_inputs
 from chemprop.cli.utils.parsing import make_datapoints, make_dataset, parse_csv
-from chemprop.data.collate import (
-    collate_batch,
-    collate_mol_atom_bond_batch,
-    collate_multicomponent,
-)
+from chemprop.data import build_dataloader
 from chemprop.data.datasets import MolAtomBondDataset, MulticomponentDataset
 from chemprop.featurizers.molgraph.reaction import RxnMode
 from chemprop.models import MPNN, MulticomponentMPNN, utils
@@ -23,12 +19,7 @@ from chemprop.nn.transforms import UnscaleTransform
 from lightning.pytorch import Trainer
 from lightning.pytorch.callbacks import EarlyStopping
 from sklearn.base import BaseEstimator, RegressorMixin, TransformerMixin
-from sklearn.metrics import (
-    accuracy_score,
-    mean_absolute_error,
-    r2_score,
-    root_mean_squared_error,
-)
+from sklearn.metrics import accuracy_score, mean_absolute_error, r2_score, root_mean_squared_error
 from torch.utils.data import DataLoader
 
 logger = logging.getLogger(__name__)
@@ -233,33 +224,23 @@ class ChempropMulticomponentTransformer(BaseEstimator, TransformerMixin):
         self.bounded = bounded
         self.no_header_row = no_header_row
         self.mol_transformer = ChempropMoleculeTransformer(
-            keep_h=keep_h,
-            add_h=add_h,
-            ignore_stereo=ignore_stereo,
-            reorder_atoms=reorder_atoms,
+            keep_h=keep_h, add_h=add_h, ignore_stereo=ignore_stereo, reorder_atoms=reorder_atoms
         )
         self.rxn_transformer = ChempropReactionTransformer(
-            keep_h=keep_h,
-            add_h=add_h,
-            ignore_stereo=ignore_stereo,
-            reorder_atoms=reorder_atoms,
+            keep_h=keep_h, add_h=add_h, ignore_stereo=ignore_stereo, reorder_atoms=reorder_atoms
         )
 
     def fit(self, X, y=None):
         return self
 
-    def fit_transform(
-        self, X: np.ndarray | Sequence[Sequence[str]] | PathLike, y=None, **__
-    ):
+    def fit_transform(self, X: np.ndarray | Sequence[Sequence[str]] | PathLike, y=None, **__):
         return self._build_dps(X, y)
 
     def transform(self, X: np.ndarray | Sequence[Sequence[str]] | PathLike):
         return self._build_dps(X, None)
 
     def _build_dps(
-        self,
-        X: np.ndarray | Sequence[Sequence[str]] | PathLike,
-        Y: Optional[Sequence[float]],
+        self, X: np.ndarray | Sequence[Sequence[str]] | PathLike, Y: Optional[Sequence[float]]
     ):
         if isinstance(X, PathLike):
             smiss, rxnss, Y, weights, lt_mask, gt_mask, _ = parse_csv(
@@ -328,14 +309,6 @@ def add_train_defaults(args: Namespace) -> Namespace:
         if not hasattr(args, k):
             setattr(args, k, v)
     return args
-
-
-def pick_collate(dset):
-    if isinstance(dset, MulticomponentDataset):
-        return collate_multicomponent
-    if isinstance(dset, MolAtomBondDataset):
-        return collate_mol_atom_bond_batch
-    return collate_batch
 
 
 def _split_indices(n: int, val_size: float, seed=0):
@@ -434,9 +407,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
 
             self.model = mpnn_cls.load_from_file(model_path)
             self.model.apply(
-                lambda m: setattr(m, "p", self.dropout)
-                if isinstance(m, torch.nn.Dropout)
-                else None
+                lambda m: setattr(m, "p", self.dropout) if isinstance(m, torch.nn.Dropout) else None
             )
 
         if isinstance(X[0], list):
@@ -466,15 +437,11 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
                     val_datasets.append(val_ds)
 
             train_set = MulticomponentDataset(train_datasets)
-            val_set = (
-                MulticomponentDataset(val_datasets) if len(val_datasets) > 0 else None
-            )
+            val_set = MulticomponentDataset(val_datasets) if len(val_datasets) > 0 else None
 
         else:
             if not isinstance(X, (list, tuple)):
-                raise ValueError(
-                    "X must be a list of datapoints for non-multicomponent inputs"
-                )
+                raise ValueError("X must be a list of datapoints for non-multicomponent inputs")
             n = len(X)
             train_idx, val_idx = _split_indices(n, self.val_size, self.data_seed)
             train_dps = [X[i] for i in train_idx]
@@ -498,31 +465,19 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
                 val_set.cache = True
 
         if self.model is None:
-            input_transforms = normalize_inputs(
-                train_set, val_set, self.args
-            )
+            input_transforms = normalize_inputs(train_set, val_set, self.args)
             output_transform = None
             if "regression" in self.task_type:
                 output_scaler = train_set.normalize_targets()
                 output_transform = UnscaleTransform.from_standard_scaler(output_scaler)
-            self.model = build_model(
-                self.args, train_set, output_transform, input_transforms
-            )
+            self.model = build_model(self.args, train_set, output_transform, input_transforms)
 
-        train_loader = DataLoader(
-            train_set,
-            batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=self.num_workers,
-            collate_fn=pick_collate(train_set),
+        train_loader = build_dataloader(
+            train_set, batch_size=self.batch_size, num_workers=self.num_workers
         )
         if val_set:
-            val_loader = DataLoader(
-                val_set,
-                batch_size=self.batch_size,
-                shuffle=False,
-                num_workers=self.num_workers,
-                collate_fn=pick_collate(val_set),
+            val_loader = build_dataloader(
+                val_set, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=False
             )
         else:
             val_loader = None
@@ -536,18 +491,13 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
             callbacks=[EarlyStopping(monitor=metric, patience=patience, mode="min")],
         )
 
-        if val_loader:
-            trainer.fit(
-                self.model, train_dataloaders=train_loader, val_dataloaders=val_loader
-            )
-        else:
-            trainer.fit(self.model, train_dataloaders=train_loader)
+        trainer.fit(self.model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
         return self
 
     def predict(self, X):
         if self.model is None:
-            raise ValueError("The regressor has not been fitted.")
+            raise RuntimeError("The regressor has not been fitted.")
         if isinstance(X[0], list):
             test_set = MulticomponentDataset(
                 [
@@ -567,20 +517,10 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
                 multi_hot_atom_featurizer_mode=self.multi_hot_atom_featurizer_mode,
             )
             self._y = test_set.Y
-        if not self.args.no_cache:
-            test_set.cache = True
-        dl = DataLoader(
-            test_set,
-            batch_size=self.args.batch_size,
-            num_workers=self.args.num_workers,
-            collate_fn=pick_collate(test_set),
-        )
-        eval_trainer = Trainer(
-            accelerator=self.args.accelerator, devices=1, enable_progress_bar=True
-        )
-        preds = eval_trainer.predict(
-            self.model, dataloaders=dl, return_predictions=True
-        )
+        dl = build_dataloader(test_set, batch_size=self.batch_size, num_workers=self.num_workers)
+
+        eval_trainer = Trainer(accelerator=self.accelerator, devices=1, enable_progress_bar=True)
+        preds = eval_trainer.predict(self.model, dataloaders=dl)
         preds = torch.cat(preds, dim=0)
 
         if preds.ndim == 1:
@@ -624,12 +564,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
 
         return scores
 
-    def score(
-        self,
-        X,
-        y=None,
-        metric: Literal["mae", "rmse", "mse", "r2", "accuracy"] = "rmse",
-    ):
+    def score(self, X, y=None, metric: Literal["mae", "rmse", "mse", "r2", "accuracy"] = "rmse"):
         y_pred = self.predict(X)
         if y is None:
             y = self._y
@@ -637,7 +572,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
 
     def save_model(self, output_dir: Optional[PathLike] = None):
         if output_dir is None:
-            output_dir = self.args.output_dir
+            output_dir = self.output_dir
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         utils.save_model(str(output_dir / "best.pt"), self.model, None)
@@ -654,11 +589,10 @@ class ChempropEnsembleRegressor(ChempropRegressor):
         return len(self.models) == self.ensemble_size
 
     def fit(self, X, y):
-        self.models = []
         if self.checkpoint is not None:
             if len(self.checkpoint) != self.ensemble_size:
                 logger.warning(
-                    f"The number of models in ensemble for each splitting of data is set to {len(self.args.checkpoint)}."
+                    f"Conflict between number of checkpoints supplied and ensemble_size argument (defaulted to 5). The number of models in ensemble is set to number of checkpoints = {len(self.checkpoint)}."
                 )
                 self.ensemble_size = len(self.checkpoint)
 
@@ -679,9 +613,7 @@ class ChempropEnsembleRegressor(ChempropRegressor):
         preds = [model.predict(X) for model in self.models]
         return np.mean(preds, axis=0)
 
-    def score(
-        self, X, y, metric: Literal["mae", "rmse", "mse", "r2", "accuracy"] = "rmse"
-    ):
+    def score(self, X, y, metric: Literal["mae", "rmse", "mse", "r2", "accuracy"] = "rmse"):
         y_pred = self.predict(X)
         if y is None:
             y = self.models[0]._y
@@ -689,7 +621,7 @@ class ChempropEnsembleRegressor(ChempropRegressor):
 
     def save_model(self, output_dir: Optional[PathLike] = None):
         if output_dir is None:
-            output_dir = self.args.output_dir
+            output_dir = self.output_dir
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         for idx, model in enumerate(self.models):
@@ -705,9 +637,7 @@ if __name__ == "__main__":
             (
                 "featurizer",
                 ChempropMulticomponentTransformer(
-                    smiles_cols=["solvent_smiles"],
-                    rxn_cols=["rxn_smiles"],
-                    target_cols=["target"],
+                    smiles_cols=["solvent_smiles"], rxn_cols=["rxn_smiles"], target_cols=["target"]
                 ),
             ),
             ("regressor", ChempropRegressor(epochs=100, patience=10)),
