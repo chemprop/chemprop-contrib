@@ -517,7 +517,9 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
                 multi_hot_atom_featurizer_mode=self.multi_hot_atom_featurizer_mode,
             )
             self._y = test_set.Y
-        dl = build_dataloader(test_set, batch_size=self.batch_size, num_workers=self.num_workers)
+        dl = build_dataloader(
+            test_set, batch_size=self.batch_size, num_workers=self.num_workers, shuffle=False
+            )
 
         eval_trainer = Trainer(accelerator=self.accelerator, devices=1, enable_progress_bar=True)
         preds = eval_trainer.predict(self.model, dataloaders=dl)
