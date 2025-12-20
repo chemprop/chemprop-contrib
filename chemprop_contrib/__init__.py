@@ -3,6 +3,7 @@ from chemprop_contrib import moe_regressor
 
 __all__ = [
     "moe_regressor",
+    "sklearn_integration",
 ]
 
 # possibly not working imports, because they have external deps that must be installed
