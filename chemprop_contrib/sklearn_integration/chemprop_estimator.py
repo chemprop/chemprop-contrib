@@ -400,7 +400,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
                 )
             model_path = model_paths[0]
 
-            if isinstance(X[0], list):
+            if len(X) > 1:
                 mpnn_cls = MulticomponentMPNN
             else:
                 mpnn_cls = MPNN
@@ -410,7 +410,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
                 lambda m: setattr(m, "p", self.dropout) if isinstance(m, torch.nn.Dropout) else None
             )
 
-        if isinstance(X[0], list):
+        if len(X) > 1:
             n = len(X[0])
             train_idx, val_idx = _split_indices(n, self.val_size, self.data_seed)
 
@@ -440,6 +440,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
             val_set = MulticomponentDataset(val_datasets) if len(val_datasets) > 0 else None
 
         else:
+            X = X[0]
             if not isinstance(X, (list, tuple)):
                 raise ValueError("X must be a list of datapoints for non-multicomponent inputs")
             n = len(X)
@@ -498,7 +499,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
     def predict(self, X):
         if self.model is None:
             raise RuntimeError("The regressor has not been fitted.")
-        if isinstance(X[0], list):
+        if len(X) > 1:
             test_set = MulticomponentDataset(
                 [
                     make_dataset(
@@ -511,6 +512,7 @@ class ChempropRegressor(BaseEstimator, RegressorMixin):
             )
             self._y = test_set.datasets[0].Y
         else:
+            X = X[0]
             test_set = make_dataset(
                 X,
                 reaction_mode=self.reaction_mode,
