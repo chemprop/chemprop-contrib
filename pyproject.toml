@@ -10,6 +10,7 @@ authors = [
     {name = "The Chemprop Development Team", email="chemprop@mit.edu"},
     {name = "Jackson Burns"},
     {name = "Shih-Cheng Li"},
+    {name = "Marc Short"},
 ]
 readme = "README.md"
 license = {text = "MIT unless otherwise noted in individual contribution files"}
