@@ -14,3 +14,10 @@ try:
     __all__ += ["mcp"]
 except ImportError:
     pass
+
+try:
+    from chemprop_contrib import set2set
+    
+    __all__ += ["set2set"]
+except ImportError:
+    pass
