@@ -1,8 +1,9 @@
 # guaranteed to work imports (have no new dependencies)
-from chemprop_contrib import moe_regressor
+from chemprop_contrib import moe_regressor, polymers
 
 __all__ = [
     "moe_regressor",
+    "polymers",
     "sklearn_integration",
 ]
 

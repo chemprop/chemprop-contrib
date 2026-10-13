@@ -1,0 +1,20 @@
+The tests and data in this directory follow the layout of the original polymer PR to Chemprop
+(https://github.com/chemprop/chemprop/pull/1214), relative to that repository's tests/ directory.
+
+data/regression/polymer/dataset-poly_chemprop_small.csv and data/test_polymer.csv are taken from
+that PR. Both are subsets of the vinyl copolymer electron affinity (EA) and ionization potential
+(IP) dataset from M. Aldeghi and C. W. Coley, "A graph representation of molecular ensembles for
+polymer property prediction", Chem. Sci., 2022, 13, 10486-10498, DOI 10.1039/D2SC02839E. The full
+dataset is available at
+https://github.com/coleygroup/polymer-chemprop-data/blob/main/datasets/vipea/chemprop_inputs/dataset-poly_chemprop.csv
+
+data/regression/polymer/config.toml is the training config from the same PR, with data-path
+pointing to the file above (relative to the root of the chemprop-contrib repository, where the
+tests are run from).
+
+data/regression/polymer/example_model_v2_regression_polymer.ckpt replaces the PR's checkpoint of
+the same name, which references classes that only exist in the PR's version of Chemprop. It was
+trained with chemprop 2.3.1 by running this from the root of the chemprop-contrib repository:
+
+chemprop-polymer train --config-path chemprop_contrib/polymers/tests/data/regression/polymer/config.toml --epochs 3 --accelerator cpu --num-workers 0 --target-columns "EA vs SHE (eV)" --save-dir test_cli_regression_polymer
+cp test_cli_regression_polymer/model_0/checkpoints/last.ckpt chemprop_contrib/polymers/tests/data/regression/polymer/example_model_v2_regression_polymer.ckpt
