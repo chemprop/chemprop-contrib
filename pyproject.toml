@@ -5,12 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chemprop-contrib"
 description = "Community contributions to chemprop"
-version = "2026.05.06"
+version = "2026.10.06"
 authors = [
     {name = "The Chemprop Development Team", email="chemprop@mit.edu"},
     {name = "Jackson Burns"},
     {name = "Shih-Cheng Li"},
     {name = "Marc Short"},
+    {name = "Jiaxu Liu"},
+    {name = "Nathan Morgan"},
 ]
 readme = "README.md"
 license = {text = "MIT unless otherwise noted in individual contribution files"}
@@ -50,7 +52,7 @@ set2set = [
 
 [project.urls]
 source = "https://github.com/chemprop/chemprop-contrib"
-PyPi = "https://pypi.org/project/chemprop/"
+PyPi = "https://pypi.org/project/chemprop-contrib/"
 
 [tool.setuptools.packages.find]
 include = ["chemprop_contrib"]
