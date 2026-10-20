@@ -29,6 +29,7 @@ Each package includes tests, which can be used to demonstrate the use of the pac
  - `set2set`: Chemprop-compatible implementation of the Set2Set aggregation function.
  - `sklearn_integration`: Scikit-learn style wrappers around Chemprop training and predicting routines.
  - `mixtures`: Order invariant architectures that accept any number of inputs. Useful for mixtures of molecules. 
+ - `polymers`: Weighted directed message passing (wD-MPNN) for polymers, with a `chemprop-polymer` command line interface.
 
 # Contributing
 

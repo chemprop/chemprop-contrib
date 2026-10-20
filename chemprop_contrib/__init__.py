@@ -1,9 +1,10 @@
 # guaranteed to work imports (have no new dependencies)
-from chemprop_contrib import mixtures, moe_regressor, sklearn_integration
+from chemprop_contrib import mixtures, moe_regressor, polymers, sklearn_integration
 
 __all__ = [
     "mixtures",
     "moe_regressor",
+    "polymers",
     "sklearn_integration",
 ]
 
