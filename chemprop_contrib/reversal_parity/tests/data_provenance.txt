@@ -1,0 +1,20 @@
+Source: chemprop tests/data/regression/rxn/rxn.csv, chemprop commit 1b90e3e2
+(100 atom-mapped, fully H-mapped reactions; molecules must be built with keep_h=True).
+
+smiles, ea : copied unchanged from the source file. `ea` is as published.
+
+y_odd, y_even : DERIVED by make_fixture.py, not measured. They are chemically
+meaningless and exist only to exercise parity. With logP the Crippen MolLogP of the whole
+reactant side and of the whole product side (each side is one Mol, built with
+keep_h=True, add_h=False), rounded to 4 decimals:
+
+    y_odd  = logP(pdt) - logP(rct)    exactly odd under reaction reversal
+    y_even = logP(pdt) + logP(rct)    exactly even under reaction reversal
+
+`ea` is the free task: activation energy is neither odd nor even.
+
+Regenerate with:
+    python chemprop_contrib/reversal_parity/tests/make_fixture.py <path-to-rxn.csv>
+
+The repository's .gitignore ignores *.csv, so a regenerated test_data.csv must be staged with
+'git add -f'.
